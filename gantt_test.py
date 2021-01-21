@@ -4,6 +4,7 @@ import plotly
 import plotly.express as px
 
 from datetime import datetime, timedelta
+import random
 
 # establish start date of today
 Today = datetime.today()
@@ -25,18 +26,24 @@ date_list.extend(seven_min_intervals)
 # formatting the datelist
 datetext = [x.strftime('%Y-%m-%d %H:%M %S') for x in date_list]
 
+# print(datetext)
 df = pd.DataFrame(datetext, columns=['start'])
 
-# create new df with every second value in second column
+# # create new df with every second value in second column
 new_df = pd.DataFrame(
     {'start': df['start'].iloc[::2].values, 'end': df['start'].iloc[1::2].values})
 
-# needs to be done column-wise, whole df doesn't seem to work so far, convert to datetim
+# # needs to be done column-wise, whole df doesn't seem to work so far, convert to datetime
 new_df['start'] = pd.to_datetime(new_df['start'], format='%Y-%m-%d %H:%M %S')
 new_df['end'] = pd.to_datetime(new_df['end'], format='%Y-%m-%d %H:%M %S')
 
+states = ['Finished', 'Failed', 'Pending']
+states_col = random.choices(states, k=100)
+
+new_df['state'] = states_col
+
 # creating chart
-fig = px.timeline(new_df, x_start="start", x_end="end")
+fig = px.timeline(new_df, x_start="start", x_end="end", y="state")
 # otherwise tasks are listed from the bottom up
 fig.update_yaxes(autorange="reversed")
 plotly.offline.plot(fig, filename='gantt_test.html')
